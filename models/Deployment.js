@@ -64,7 +64,7 @@ deploymentSchema.index({ nextPaymentDue: 1 });
 deploymentSchema.virtual('age').get(function() {
     const diff = Date.now() - this.createdAt.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     return `${days}d ${hours.toFixed(1)}h`;
 });
 
