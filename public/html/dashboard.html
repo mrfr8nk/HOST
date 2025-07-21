@@ -30,12 +30,14 @@
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: var(--text);
             min-height: 100vh;
+            overflow-x: hidden;
         }
         
         .dashboard-container {
             display: grid;
             grid-template-columns: 250px 1fr;
             min-height: 100vh;
+            transition: all 0.3s;
         }
         
         .sidebar {
@@ -43,7 +45,7 @@
             backdrop-filter: blur(10px);
             padding: 20px;
             border-right: 1px solid rgba(255, 255, 255, 0.1);
-            transition: transform 0.3s ease;
+            transition: all 0.3s;
         }
         
         .sidebar-header {
@@ -88,23 +90,32 @@
         
         .main-content {
             padding: 20px;
-            position: relative;
+            transition: all 0.3s;
         }
         
         .mobile-header {
             display: none;
-            justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            padding: 10px;
         }
         
         .menu-toggle {
             background: none;
             border: none;
             color: var(--text);
-            font-size: 24px;
+            font-size: 20px;
+            margin-right: 15px;
             cursor: pointer;
+            transition: all 0.3s;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
         }
         
         .stats-grid {
@@ -120,10 +131,12 @@
             border-radius: 10px;
             text-align: center;
             transition: transform 0.3s;
+            backdrop-filter: blur(5px);
         }
         
         .stat-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
         
         .stat-card h3 {
@@ -135,6 +148,9 @@
         .stat-card p {
             font-size: 28px;
             font-weight: bold;
+            background: linear-gradient(to right, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
         .deploy-section {
@@ -142,13 +158,7 @@
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 30px;
-        }
-        
-        .deploy-section h2 {
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            backdrop-filter: blur(5px);
         }
         
         .deploy-btn {
@@ -168,12 +178,14 @@
         .deploy-btn:hover {
             background: #00acc1;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 188, 212, 0.3);
         }
         
         .recent-deployments {
             background: var(--card-bg);
             padding: 20px;
             border-radius: 10px;
+            backdrop-filter: blur(5px);
         }
         
         .deployment-item {
@@ -182,10 +194,11 @@
             align-items: center;
             padding: 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
         }
         
-        .deployment-item:last-child {
-            border-bottom: none;
+        .deployment-item:hover {
+            background: rgba(255, 255, 255, 0.05);
         }
         
         .deployment-status {
@@ -207,13 +220,14 @@
         
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 30px;
             color: var(--text-secondary);
         }
         
         .empty-state i {
             font-size: 40px;
             margin-bottom: 15px;
+            color: var(--text-secondary);
         }
         
         @media (max-width: 768px) {
@@ -225,9 +239,9 @@
                 position: fixed;
                 top: 0;
                 left: -250px;
-                width: 250px;
-                height: 100vh;
+                bottom: 0;
                 z-index: 1000;
+                width: 250px;
             }
             
             .sidebar.active {
@@ -237,18 +251,21 @@
             .mobile-header {
                 display: flex;
             }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
-        <div class="mobile-header">
-            <button class="menu-toggle" id="menu-toggle">
-                <i class="fas fa-bars"></i>
-            </button>
-            <h1 class="page-title"><i class="fas fa-home"></i> Dashboard</h1>
-        </div>
-        
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <img src="https://i.postimg.cc/zv76KffW/IMG-20250115-WA0020.jpg" alt="Logo" class="logo">
@@ -268,6 +285,13 @@
         </aside>
         
         <main class="main-content">
+            <div class="mobile-header">
+                <button class="menu-toggle" id="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title"><i class="fas fa-home"></i> Dashboard</h1>
+            </div>
+            
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>Total Bots</h3>
@@ -289,14 +313,13 @@
             
             <div class="deploy-section">
                 <h2><i class="fas fa-rocket"></i> Quick Deploy</h2>
-                <button class="deploy-btn" id="new-deployment-btn">
+                <button class="deploy-btn" id="deploy-new-btn">
                     <i class="fas fa-plus"></i> Deploy New Bot
                 </button>
             </div>
             
             <div class="recent-deployments">
                 <h2><i class="fas fa-history"></i> Recent Deployments</h2>
-                
                 <div id="deployments-list">
                     <div class="empty-state">
                         <i class="fas fa-server"></i>
@@ -346,6 +369,7 @@
                     console.error('Error loading user:', error);
                     localStorage.removeItem('token');
                     window.location.href = '/login';
+                    return null;
                 }
             }
 
@@ -362,6 +386,7 @@
                     return await response.json();
                 } catch (error) {
                     console.error('Error loading deployments:', error);
+                    showError('Failed to load deployments');
                     return [];
                 }
             }
@@ -399,7 +424,7 @@
                     return;
                 }
 
-                const recentDeployments = deployments.slice(0, 2); // Show last 2
+                const recentDeployments = deployments.slice(0, 3); // Show last 3
                 recentDeployments.forEach(deployment => {
                     const deploymentEl = document.createElement('div');
                     deploymentEl.className = 'deployment-item';
@@ -427,19 +452,21 @@
             await updateUI();
 
             // Set up event listeners
-            document.getElementById('new-deployment-btn').addEventListener('click', () => {
+            document.getElementById('deploy-new-btn').addEventListener('click', () => {
                 window.location.href = '/deployments';
             });
 
-            // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', (e) => {
-                if (window.innerWidth <= 768 && 
-                    !sidebar.contains(e.target) && 
-                    e.target !== menuToggle) {
-                    sidebar.classList.remove('active');
-                }
-            });
+            // Auto-refresh every 30 seconds
+            setInterval(updateUI, 30000);
         });
+
+        function showError(message) {
+            const errorEl = document.createElement('div');
+            errorEl.className = 'error-message';
+            errorEl.textContent = message;
+            document.body.appendChild(errorEl);
+            setTimeout(() => errorEl.remove(), 3000);
+        }
     </script>
 </body>
 </html>
